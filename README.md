@@ -21,6 +21,7 @@ While typing in a markdown note, typing `b[` will bring up a searchable suggesti
 		- Example 2
 
 	boost: 100
+	---
 
 	# Example file 1
 
