@@ -4,9 +4,9 @@ An [Obsidian](https://obsidian.md) plugin for altering the order of inline link 
 
 ## Motivation
 
-## Usage
+Obsidian provides a built-in interface for suggesting files to link to (when typing `[[`, for example). Links in this interface are [currently based solely on search match](https://discord.com/channels/686053708261228577/716028884885307432/1053860523646656563). If some files are frequently linked to but are lower in the alphabet than other, less-frequently-linked-to files, this can lead to situations in which a higher-up file are mistakenly chosen over the more-frequently-linked-to file from the list of suggestions when writing quickly. This plugin addresses this situation by suggesting files in order of their incoming links, and further by allowing "boosting" specific files manually.
 
-### YAML front matter
+## Usage
 
 ### Linking to files
 
