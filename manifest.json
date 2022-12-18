@@ -3,7 +3,7 @@
 	"name": "Boost Link Suggestions",
 	"version": "0.1.0",
 	"minAppVersion": "1.0.0",
-	"description": "An Obsidian (https://obsidian.md) plugin for redirecting links based on YAML frontmatter.",
+	"description": "An Obsidian (https://obsidian.md) plugin for altering the order of inline link suggestions by link count and manual boosts.",
 	"author": "Jacob Levernier",
 	"authorUrl": "https://github.com/jglev",
 	"isDesktopOnly": false
