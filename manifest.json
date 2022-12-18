@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-boost-link-suggestions",
 	"name": "Boost Link Suggestions",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"minAppVersion": "1.0.0",
 	"description": "An Obsidian (https://obsidian.md) plugin for altering the order of inline link suggestions by link count and manual boosts.",
 	"author": "Jacob Levernier",

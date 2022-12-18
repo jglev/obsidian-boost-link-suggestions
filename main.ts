@@ -5,7 +5,7 @@ import {
 	EditorSuggest,
 	EditorSuggestContext,
 	EditorSuggestTriggerInfo,
-	iterateCacheRefs,
+	MarkdownView,
 	Plugin,
 	PluginSettingTab,
 	Setting,
@@ -130,14 +130,14 @@ const renderSuggestionObject = (
 		cls: "boostlink-suggestion-text",
 	});
 	suggestionTextEl
-		.createDiv({ cls: "boostlink-item" })
-		.setText(suggestion.path);
-	suggestionTextEl
 		.createDiv({ cls: "boostlink-alias" })
 		.setText(suggestion.alias);
+	suggestionTextEl
+		.createDiv({ cls: "boostlink-item" })
+		.setText(suggestion.path);
 	if (showScores) {
 		suggestionTextEl
-			.createDiv({ cls: "boostlink-alias boostlink-count" })
+			.createDiv({ cls: "boostlink-count" })
 			.setText(`Score: ${suggestion.linkCount} (${suggestion.linkCountDescription})`);
 	}
 };
@@ -160,6 +160,15 @@ export default class BoostLinkPlugin extends Plugin {
 		this.registerEditorSuggest(
 			new BoostLinkEditorSuggester(this, this.settings)
 		);
+
+		this.addCommand({
+			id: "add-file-link",
+			icon: "link",
+			name: "Trigger link",
+			editorCallback: (editor: Editor, view: MarkdownView) => {
+				editor.replaceSelection(this.settings.triggerString);
+			},
+		});
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new BoostLinkSettingsTab(this.app, this));
