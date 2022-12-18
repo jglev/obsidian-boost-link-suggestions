@@ -1,0 +1,32 @@
+{
+	"name": "obsidian-boost-link-suggestions",
+	"version": "0.2.0",
+	"description": "An Obsidian (https://obsidian.md) plugin for altering the order of inline link suggestions.",
+	"main": "main.js",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"version": "node version-bump.mjs && git add manifest.json versions.json"
+	},
+	"keywords": [
+		"obsidian",
+		"links"
+	],
+	"author": "Jacob Levernier",
+	"license": "BSD-3-Clause",
+	"devDependencies": {
+		"@types/node": "^16.11.6",
+		"@typescript-eslint/eslint-plugin": "^5.2.0",
+		"@typescript-eslint/parser": "^5.2.0",
+		"builtin-modules": "^3.2.0",
+		"esbuild": "0.13.12",
+		"obsidian": "0.15.0",
+		"tslib": "2.3.1",
+		"typescript": "4.4.4"
+	},
+	"dependencies": {
+		"@types/js-yaml": "^4.0.5",
+		"front-matter": "^4.0.2",
+		"js-yaml": "^4.1.0"
+	}
+}
