@@ -5,6 +5,7 @@ import {
 	EditorSuggest,
 	EditorSuggestContext,
 	EditorSuggestTriggerInfo,
+	iterateCacheRefs,
 	Plugin,
 	PluginSettingTab,
 	Setting,
@@ -42,13 +43,17 @@ const getBoostedSuggestions = (
 ) => {
 	const queryWords = filterString.toLowerCase().split(/\s{1,}/);
 
+	const resolvedLinks = Object.values(plugin.app.metadataCache.resolvedLinks);
+	const backlinkCounts = getBackLinkCounts(resolvedLinks);
+
 	let boostlinksGathered = files
 		.map((file) => {
-			const linkCount = Object.values(plugin.app.metadataCache.resolvedLinks[file.path] || {}).reduce((runningSum, c) => runningSum + c, 0);
 			const frontMatter =
 				plugin.app.metadataCache.getFileCache(file)?.frontmatter;
 
 			const boost = (frontMatter?.boost && Number.isInteger(frontMatter.boost)) ? frontMatter.boost : 0;
+
+			const linkCount = backlinkCounts[file.path] || 0;
 
 			const finalLinkCount = linkCount + boost;
 
@@ -74,7 +79,7 @@ const getBoostedSuggestions = (
 						isAlias: alias !== file.basename,
 						extension: file.path.split(".").pop(),
 						linkCount: finalLinkCount,
-						linkCountDescription: `${linkCount} links + ${boost}`
+						linkCountDescription: `${linkCount} links + ${boost ? 'boost of ' + boost : 'no boost'}`
 					};
 
 				})
@@ -136,6 +141,15 @@ const renderSuggestionObject = (
 			.setText(`Score: ${suggestion.linkCount} (${suggestion.linkCountDescription})`);
 	}
 };
+
+const getBackLinkCounts = (cachedLinkCounts: { [key: string]: number }[]) =>
+	cachedLinkCounts.reduce((result, fileLinkCounts) => {
+		for (const key in fileLinkCounts) {
+			result[key] = (result[key] || 0) + fileLinkCounts[key];
+		}
+		return result;
+	}, {});
+
 
 export default class BoostLinkPlugin extends Plugin {
 	settings: BoostLinkPluginSettings;
