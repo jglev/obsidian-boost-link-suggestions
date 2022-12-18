@@ -1,7 +1,7 @@
 {
 	"name": "obsidian-boost-link-suggestions",
-	"version": "0.2.0",
-	"description": "An Obsidian (https://obsidian.md) plugin for altering the order of inline link suggestions.",
+	"version": "0.1.0",
+	"description": "An Obsidian (https://obsidian.md) plugin for altering the order of inline link suggestions by link count and manual boosts.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",

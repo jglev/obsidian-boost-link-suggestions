@@ -1,6 +1,6 @@
 # Obsidian Boost Link Suggestions
 
-An [Obsidian](https://obsidian.md) plugin to boost file link suggestions.
+An [Obsidian](https://obsidian.md) plugin for altering the order of inline link suggestions by link count and manual boosts.
 
 ## Motivation
 
@@ -10,7 +10,26 @@ An [Obsidian](https://obsidian.md) plugin to boost file link suggestions.
 
 ### Linking to files
 
-While typing in a markdown note, typing `[[` will bring up a searchable suggestion interface, which lists files.
+While typing in a markdown note, typing `b[` will bring up a searchable suggestion interface that lists files. This is equivalent to the file-linking interface built into Obsidian core, except that it uses a modifiable sorting approach. Specifically, files are listed by:
+
+1. How many times the file is linked to in the Obisidian vault, _plus:_
+2. A "boost" score from that file's YAML front-matter (by default, using the key "`boost`"):
+	```md
+	---
+	aliases:
+		- Example 1
+		- Example 2
+
+	boost: 100
+
+	# Example file 1
+
+	...
+	```
+
+This allows "boosting" certain files such that they will always be at or near the top of the suggestions list.
+
+Boost score calculations can optionally be shown in the suggestion interface by enabling the "Show scores" setting.
 
 ## Installation
 
