@@ -1,6 +1,5 @@
 .boostlink-suggester-el {
 	position: relative;
-	min-width: 25vw;
 	margin-left: 0.5em;
 }
 
@@ -14,8 +13,12 @@
 	width: 100%;
 }
 
+.boostlink-item,
+.boostlink-count {
+	font-size: 0.8em;
+	color: var(--text-muted);
+}
 .boostlink-item {
-	font-size: var(--font-ui-medium);
 	clear: left;
 	display: block;
 	color: var(--text-muted);
@@ -35,8 +38,7 @@
 }
 
 .boostlink-alias {
-	font-size: 0.8em;
-	color: var(--text-muted);
+	font-size: var(--font-ui-medium);
 	float: left;
 }
 
