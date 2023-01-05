@@ -8,6 +8,7 @@ import {
 	MarkdownView,
 	Plugin,
 	PluginSettingTab,
+	prepareFuzzySearch,
 	Setting,
 	TFile,
 } from "obsidian";
@@ -43,6 +44,8 @@ const getBoostedSuggestions = (
 ) => {
 	const queryWords = filterString.toLowerCase().split(/\s{1,}/);
 
+	const searchCallback = prepareFuzzySearch(filterString);
+
 	const resolvedLinks = Object.values(plugin.app.metadataCache.resolvedLinks);
 	const backlinkCounts = getBackLinkCounts(resolvedLinks);
 
@@ -72,47 +75,39 @@ const getBoostedSuggestions = (
 				file.basename,
 			]
 				.map((alias: string) => {
+					if (alias === undefined || alias === null) {
+						return null
+					}
+
+					const fuzzyMatchOutput = searchCallback(alias);
+
+					if (!fuzzyMatchOutput) {
+						return null
+					}
+
+					const finalMatchScore = (-1 * fuzzyMatchOutput.score) * finalLinkCount;
+
 					return {
 						alias: `${alias}`,
+						matchScore: finalMatchScore,
 						path: `${file.path}`,
 						originTFile: file,
 						isAlias: alias !== file.basename,
 						extension: file.path.split(".").pop(),
 						linkCount: finalLinkCount,
-						linkCountDescription: `${linkCount} links + ${boost ? 'boost of ' + boost : 'no boost'}`
+						linkCountDescription: `${Math.round(finalMatchScore * 100) / 100}: Search score of ${-1 * Math.round(fuzzyMatchOutput.score * 100) / 100}} * (${linkCount} links + ${boost ? 'boost of ' + boost : 'no boost'})`
 					};
 
 				})
 				.flat();
 
-			output = output.filter((a) => {
-				if (a === undefined || a === null) {
-					return false;
-				}
-
-				if (a === undefined) {
-					return false;
-				}
-
-				if (!filterString) {
-					return true;
-				}
-
-				return queryWords.every((word) => {
-					return (
-						a.alias.toLowerCase().contains(word) ||
-						a.path.toLowerCase().contains(word)
-					);
-				});
-			});
-
 			return output;
 		})
 		.filter((a) => a.length)
 		.flat()
-		.filter((r) => r !== undefined && r !== null).sort((a, b) => b.linkCount - a.linkCount);
+		.filter((r) => r !== undefined && r !== null)
 
-	return boostlinksGathered;
+	return boostlinksGathered.sort((a, b) => b.matchScore - a.matchScore);
 };
 
 const renderSuggestionObject = (
@@ -138,7 +133,7 @@ const renderSuggestionObject = (
 	if (showScores) {
 		suggestionTextEl
 			.createDiv({ cls: "boostlink-count" })
-			.setText(`Score: ${suggestion.linkCount} (${suggestion.linkCountDescription})`);
+			.setText(`Score: ${suggestion.linkCountDescription}`);
 	}
 };
 
@@ -271,7 +266,7 @@ class BoostLinkEditorSuggester extends EditorSuggest<{
 				const markdownLink = this.plugin.app.fileManager
 					.generateMarkdownLink(
 						file,
-						this.plugin.app.workspace.getActiveFile().path,
+						this.context.file.path,
 						"",
 						suggestion.alias
 					)
