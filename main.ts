@@ -42,8 +42,6 @@ const getBoostedSuggestions = (
 	files: TFile[],
 	filterString?: string
 ) => {
-	const queryWords = filterString.toLowerCase().split(/\s{1,}/);
-
 	const searchCallback = prepareFuzzySearch(filterString);
 
 	const resolvedLinks = Object.values(plugin.app.metadataCache.resolvedLinks);
