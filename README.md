@@ -1,6 +1,6 @@
 # Obsidian Boost Link Suggestions
 
-An [Obsidian](https://obsidian.md) plugin for altering the order of inline link suggestions by link count and manual boosts.
+An [Obsidian](https://obsidian.md) plugin for suggesting inline links ordered by link count and manual boosts.
 
 ## Motivation
 
