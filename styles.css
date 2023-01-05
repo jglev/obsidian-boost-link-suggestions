@@ -5,7 +5,7 @@
 
 .boostlink-suggester-el * {
 	display: inline-block;
-	
+	overflow: clip;
 }
 
 .boostlink-suggestion-text {
