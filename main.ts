@@ -94,7 +94,7 @@ const getBoostedSuggestions = (
 						isAlias: alias !== file.basename,
 						extension: file.path.split(".").pop(),
 						linkCount: finalLinkCount,
-						linkCountDescription: `${Math.round(finalMatchScore * 100) / 100}: Search score of ${-1 * Math.round(fuzzyMatchOutput.score * 100) / 100}} * (${linkCount} links + ${boost ? 'boost of ' + boost : 'no boost'})`
+						linkCountDescription: `${Math.round(finalMatchScore * 100) / 100}: Search score of ${-1 * Math.round(fuzzyMatchOutput.score * 100) / 100} * (${linkCount} links + ${boost ? 'boost of ' + boost : 'no boost'})`
 					};
 
 				})
@@ -349,5 +349,7 @@ class BoostLinkSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})
 			);
+
+
 	}
 }
