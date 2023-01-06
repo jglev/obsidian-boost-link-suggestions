@@ -72,6 +72,7 @@ const getBoostedSuggestions = (
 				...(Array.isArray(aliases) ? aliases : [aliases]),
 				file.basename,
 			]
+				.reverse()
 				.map((alias: string) => {
 					if (alias === undefined || alias === null) {
 						return null
