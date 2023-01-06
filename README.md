@@ -28,6 +28,8 @@ While typing in a markdown note, typing `b[` will bring up a searchable suggesti
 	...
 	```
 
+Within a file, suggestions are listed by aliases in order in which they are listed in the YAML front-matter, followed by the filename.
+
 This allows "boosting" certain files such that they will always be at or near the top of the suggestions list.
 
 Boost score calculations can optionally be shown in the suggestion interface by enabling the "Show scores" setting.
