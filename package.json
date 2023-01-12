@@ -1,6 +1,6 @@
 {
 	"name": "boost-link-suggestions",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "An Obsidian (https://obsidian.md) plugin offering an llternative inline link suggester that orders results by link count and manual boosts.",
 	"main": "main.js",
 	"scripts": {

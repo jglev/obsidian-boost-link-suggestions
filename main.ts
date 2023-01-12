@@ -27,6 +27,7 @@ interface BoostLinkPluginSettings {
 	triggerString: string;
 	yamlFrontMatterBoostTag: string;
 	showScores: boolean;
+	useObsidianFuzzyMatching: boolean;
 	apiVersion: number;
 }
 
@@ -34,6 +35,7 @@ const DEFAULT_SETTINGS: BoostLinkPluginSettings = {
 	triggerString: "b[",
 	yamlFrontMatterBoostTag: 'boost',
 	showScores: true,
+	useObsidianFuzzyMatching: false,
 	apiVersion: 1,
 };
 
@@ -43,6 +45,7 @@ const getBoostedSuggestions = (
 	filterString?: string
 ) => {
 	const searchCallback = prepareFuzzySearch(filterString);
+	const queryWords = filterString.toLowerCase().split(/\s{1,}/);
 
 	const resolvedLinks = Object.values(plugin.app.metadataCache.resolvedLinks);
 	const backlinkCounts = getBackLinkCounts(resolvedLinks);
@@ -72,19 +75,40 @@ const getBoostedSuggestions = (
 				...(Array.isArray(aliases) ? aliases : [aliases]),
 				file.basename,
 			]
-				.reverse()
 				.map((alias: string) => {
 					if (alias === undefined || alias === null) {
 						return null
 					}
 
-					const fuzzyMatchOutput = searchCallback(alias);
+					let componentMatchScore = null;
+					let finalMatchScore = 0;
 
-					if (!fuzzyMatchOutput) {
-						return null
+					if (plugin.settings.useObsidianFuzzyMatching) {
+
+						const fuzzyMatchOutput = searchCallback(alias);
+
+						if (!fuzzyMatchOutput) {
+							return null
+						}
+
+						componentMatchScore = (-1 * Math.round(fuzzyMatchOutput.score * 100) / 100);
+
+						finalMatchScore = (-1 * fuzzyMatchOutput.score) * finalLinkCount;
+					} else {
+						if (filterString) {
+							const isMatch = queryWords.every((word) => {
+								return (
+									alias.toLowerCase().contains(word) || alias.toLowerCase().contains(word)
+								);
+							});
+
+							if (!isMatch) {
+								return null
+							}
+
+							finalMatchScore = linkCount + boost;
+						}
 					}
-
-					const finalMatchScore = (-1 * fuzzyMatchOutput.score) * finalLinkCount;
 
 					return {
 						alias: `${alias}`,
@@ -94,7 +118,7 @@ const getBoostedSuggestions = (
 						isAlias: alias !== file.basename,
 						extension: file.path.split(".").pop(),
 						linkCount: finalLinkCount,
-						linkCountDescription: `${Math.round(finalMatchScore * 100) / 100}: Search score of ${-1 * Math.round(fuzzyMatchOutput.score * 100) / 100}} * (${linkCount} links + ${boost ? 'boost of ' + boost : 'no boost'})`
+						linkCountDescription: `${Math.round(finalMatchScore * 100) / 100}: ${componentMatchScore ? 'Search score of ' + componentMatchScore + ' * ' : ''}${componentMatchScore ? '(' : ''}${linkCount} links + ${boost ? 'boost of ' + boost : 'no boost'}${componentMatchScore ? ')' : ''}`
 					};
 
 				})
@@ -349,5 +373,18 @@ class BoostLinkSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})
 			);
+
+		new Setting(containerEl)
+			.setName("Use Obsidian fuzzy matching")
+			.setDesc("When searching for suggestions, use Obsidian's built-in fuzzy matching. (If turned off, searching is less fuzzy.)")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.useObsidianFuzzyMatching)
+					.onChange(async (value) => {
+						this.plugin.settings.useObsidianFuzzyMatching = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
 	}
 }
