@@ -46,6 +46,7 @@ const getBoostedSuggestions = (
 ) => {
 	const searchCallback = prepareFuzzySearch(filterString);
 	const queryWords = filterString.toLowerCase().split(/\s{1,}/);
+	console.log(49, queryWords);
 
 	const resolvedLinks = Object.values(plugin.app.metadataCache.resolvedLinks);
 	const backlinkCounts = getBackLinkCounts(resolvedLinks);
@@ -129,6 +130,16 @@ const getBoostedSuggestions = (
 		.filter((a) => a.length)
 		.flat()
 		.filter((r) => r !== undefined && r !== null)
+
+	console.log(134, boostlinksGathered);
+
+	// Deduplicate the gathered links:
+	boostlinksGathered = boostlinksGathered.reduce((deduplicatedLinks, current) => {
+		if (!deduplicatedLinks.some(x => x.alias == current.alias && x.path == current.path)) {
+			deduplicatedLinks.push(current);
+		}
+		return deduplicatedLinks;
+	}, []);
 
 	return boostlinksGathered.sort((a, b) => b.matchScore - a.matchScore);
 };

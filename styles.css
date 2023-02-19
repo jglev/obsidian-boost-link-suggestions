@@ -8,6 +8,9 @@
 	overflow: clip;
 }
 
+.suggestion {
+	overflow-x: clip;
+}
 .boostlink-suggestion-text {
 	margin-right: 3em;
 	width: 100%;
