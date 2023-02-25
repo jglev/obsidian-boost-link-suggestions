@@ -48,6 +48,15 @@ const DEFAULT_SETTINGS: BoostLinkPluginSettings = {
 	apiVersion: 2,
 };
 
+const deduplicateLinks = (links: SuggestionObject[]) => {
+	return links.reduce((deduplicatedLinks, current) => {
+		if (!deduplicatedLinks.some(x => x.alias == current.alias && x.path == current.path)) {
+			deduplicatedLinks.push(current);
+		}
+		return deduplicatedLinks;
+	}, [])
+}
+
 const getBoostedSuggestions = (
 	plugin: BoostLinkPlugin,
 	files: TFile[],
@@ -107,7 +116,7 @@ const getBoostedSuggestions = (
 						if (filterString) {
 							const isMatch = queryWords.every((word) => {
 								return (
-									alias.toLowerCase().contains(word) || alias.toLowerCase().contains(word)
+									alias.toLowerCase().contains(word) || file.basename.toLowerCase().contains(word)
 								);
 							});
 
@@ -139,15 +148,8 @@ const getBoostedSuggestions = (
 		.flat()
 		.filter((r) => r !== undefined && r !== null)
 
-	console.log(134, boostlinksGathered);
-
 	// Deduplicate the gathered links:
-	boostlinksGathered = boostlinksGathered.reduce((deduplicatedLinks, current) => {
-		if (!deduplicatedLinks.some(x => x.alias == current.alias && x.path == current.path)) {
-			deduplicatedLinks.push(current);
-		}
-		return deduplicatedLinks;
-	}, []);
+	boostlinksGathered = deduplicateLinks(boostlinksGathered);
 
 	return boostlinksGathered.sort((a, b) => b.matchScore - a.matchScore);
 };
@@ -287,9 +289,8 @@ class BoostLinkEditorSuggester extends EditorSuggest<{
 	}
 
 	getSuggestions(context: EditorSuggestContext): SuggestionObject[] {
-		console.log(290, context.query);
 		if (context.query === '' && this.plugin.settings?.mostRecentSelections.length > 0) {
-			return this.plugin.settings.mostRecentSelections.map(selection => {
+			const recentLinks = this.plugin.settings.mostRecentSelections.map(selection => {
 				if (!selection.path || !selection.alias || !this.plugin.app.vault.adapter.exists(selection.path)) {
 					return null
 				}
@@ -308,7 +309,9 @@ class BoostLinkEditorSuggester extends EditorSuggest<{
 					linkCount: null,
 					linkCountDescription: `(Recently used)`
 				};
-			}).filter(e => e !== null)
+			}).filter(e => e !== null);
+
+			return deduplicateLinks(recentLinks)
 		}
 
 		return getBoostedSuggestions(
