@@ -116,7 +116,7 @@ const getBoostedSuggestions = (
 						if (filterString) {
 							const isMatch = queryWords.every((word) => {
 								return (
-									alias.toLowerCase().contains(word) || file.basename.toLowerCase().contains(word)
+									alias.toLowerCase().contains(word) || file.path.toLowerCase().contains(word)
 								);
 							});
 
