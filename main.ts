@@ -19,15 +19,22 @@ type SuggestionObject = {
 	originTFile: TFile;
 	isAlias: boolean;
 	extension: string;
-	linkCount: number;
+	linkCount: number | null;
 	linkCountDescription: string;
 };
+
+type SavedAliasObject = {
+	alias: string;
+	path: string;
+}
 
 interface BoostLinkPluginSettings {
 	triggerString: string;
 	yamlFrontMatterBoostTag: string;
 	showScores: boolean;
 	useObsidianFuzzyMatching: boolean;
+	saveMostRecentSelections: boolean;
+	mostRecentSelections: SavedAliasObject[];
 	apiVersion: number;
 }
 
@@ -36,7 +43,9 @@ const DEFAULT_SETTINGS: BoostLinkPluginSettings = {
 	yamlFrontMatterBoostTag: 'boost',
 	showScores: true,
 	useObsidianFuzzyMatching: false,
-	apiVersion: 1,
+	saveMostRecentSelections: true,
+	mostRecentSelections: [],
+	apiVersion: 2,
 };
 
 const getBoostedSuggestions = (
@@ -46,7 +55,6 @@ const getBoostedSuggestions = (
 ) => {
 	const searchCallback = prepareFuzzySearch(filterString);
 	const queryWords = filterString.toLowerCase().split(/\s{1,}/);
-	console.log(49, queryWords);
 
 	const resolvedLinks = Object.values(plugin.app.metadataCache.resolvedLinks);
 	const backlinkCounts = getBackLinkCounts(resolvedLinks);
@@ -167,7 +175,7 @@ const renderSuggestionObject = (
 	if (showScores) {
 		suggestionTextEl
 			.createDiv({ cls: "boostlink-count" })
-			.setText(`Score: ${suggestion.linkCountDescription}`);
+			.setText(`${suggestion.linkCount !== null ? 'Score: ' : ''}${suggestion.linkCountDescription}`);
 	}
 };
 
@@ -279,6 +287,30 @@ class BoostLinkEditorSuggester extends EditorSuggest<{
 	}
 
 	getSuggestions(context: EditorSuggestContext): SuggestionObject[] {
+		console.log(290, context.query);
+		if (context.query === '' && this.plugin.settings?.mostRecentSelections.length > 0) {
+			return this.plugin.settings.mostRecentSelections.map(selection => {
+				if (!selection.path || !selection.alias || !this.plugin.app.vault.adapter.exists(selection.path)) {
+					return null
+				}
+
+				const tfile = this.plugin.app.metadataCache.getFirstLinkpathDest(selection.path, '');
+				if (!tfile) {
+					return null
+				}
+
+				return {
+					alias: `${selection.alias}`,
+					path: `${selection.path}`,
+					originTFile: tfile,
+					isAlias: true,
+					extension: selection.path.split(".").pop(),
+					linkCount: null,
+					linkCountDescription: `(Recently used)`
+				};
+			}).filter(e => e !== null)
+		}
+
 		return getBoostedSuggestions(
 			this.plugin,
 			this.plugin.app.vault.getFiles(),
@@ -290,7 +322,7 @@ class BoostLinkEditorSuggester extends EditorSuggest<{
 		renderSuggestionObject(suggestion, el, this.plugin.settings.showScores);
 	}
 
-	selectSuggestion(suggestion: SuggestionObject): void {
+	async selectSuggestion(suggestion: SuggestionObject): Promise<void> {
 		if (this.context) {
 			const file = this.plugin.app.metadataCache.getFirstLinkpathDest(
 				suggestion.path,
@@ -315,6 +347,11 @@ class BoostLinkEditorSuggester extends EditorSuggest<{
 
 				const { ch, line } = this.context.start;
 				editor.setCursor({ line, ch: ch + markdownLink.length });
+
+				if (this.plugin?.settings.saveMostRecentSelections) {
+					this.plugin.settings.mostRecentSelections = [{ alias: suggestion.alias, path: this.context.file.path }, ...(this.plugin.settings.mostRecentSelections || []).slice(0, 10)]
+					await this.plugin.saveSettings();
+				}
 			}
 		}
 	}
@@ -393,6 +430,18 @@ class BoostLinkSettingsTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.useObsidianFuzzyMatching)
 					.onChange(async (value) => {
 						this.plugin.settings.useObsidianFuzzyMatching = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Save most recent selections")
+			.setDesc("When enabled, display the ten most recent selections first by default.")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.saveMostRecentSelections)
+					.onChange(async (value) => {
+						this.plugin.settings.saveMostRecentSelections = value;
 						await this.plugin.saveSettings();
 					})
 			);
