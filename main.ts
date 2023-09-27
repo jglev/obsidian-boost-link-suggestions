@@ -352,7 +352,7 @@ class BoostLinkEditorSuggester extends EditorSuggest<{
 				editor.setCursor({ line, ch: ch + markdownLink.length });
 
 				if (this.plugin?.settings.saveMostRecentSelections) {
-					this.plugin.settings.mostRecentSelections = [{ alias: suggestion.alias, path: this.context.file.path }, ...(this.plugin.settings.mostRecentSelections || []).slice(0, 10)]
+					this.plugin.settings.mostRecentSelections = [{ alias: suggestion.alias, path: suggestion.path }, ...(this.plugin.settings.mostRecentSelections || []).slice(0, 10)]
 					await this.plugin.saveSettings();
 				}
 			}
