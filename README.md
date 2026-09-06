@@ -34,6 +34,16 @@ This allows "boosting" certain files such that they will always be at or near th
 
 Boost score calculations can optionally be shown in the suggestion interface by enabling the "Show scores" setting.
 
+### Using with Tasks plugin
+
+If you have the [Obsidian Tasks](https://github.com/obsidian-tasks-group/obsidian-tasks) plugin installed and enabled, using the Tasks' plugin's default settings, link suggestions will not appear when typing `b[` inside checklist items (lines starting with `- [ ]`). This is because only one plugin's suggestion menu can be displayed at a time, and Tasks plugin takes priority in that context. See [the Tasks documentation](https://publish.obsidian.md/tasks/Editing/Auto-Suggest#How+can+I+use+auto-suggest+features+from+other+plugins+together+with+the+Tasks+auto-suggest%3F) for more information.
+
+**Workarounds:**
+
+- In the Tasks' settings, disable "Auto-suggest → Auto-suggest task content", OR
+- In Tasks settings, set "Auto-suggest → Minimum match length for auto-suggest" to a number greater than 0 (e.g., `2`)
+- Use the "Trigger link" command instead of typing `b[` in checklist items
+
 ## Installation
 
 ### Manually installing the plugin
