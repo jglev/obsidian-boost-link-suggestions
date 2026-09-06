@@ -1,9 +1,9 @@
 {
 	"id": "boost-link-suggestions",
 	"name": "Boost Link Suggestions",
-	"version": "1.1.0",
-	"minAppVersion": "1.0.0",
-	"description": "An Obsidian (https://obsidian.md) plugin offering an llternative inline link suggester that orders results by link count and manual boosts.",
+	"version": "1.2.0",
+	"minAppVersion": "1.13.7",
+	"description": "An Obsidian (https://obsidian.md) plugin offering an alternative inline link suggester that orders results by link count and manual boosts.",
 	"author": "Jacob Levernier",
 	"authorUrl": "https://github.com/jglev",
 	"isDesktopOnly": false
