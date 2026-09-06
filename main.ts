@@ -449,5 +449,26 @@ class BoostLinkSettingsTab extends PluginSettingTab {
 					})
 			);
 
+		// Check if Tasks plugin is installed and enabled
+		const tasksPluginId = 'obsidian-tasks-plugin';
+		const pluginManager = (this.app as any).plugins;
+		const tasksPluginEnabled = pluginManager?.enabledPlugins?.has(tasksPluginId);
+
+		if (tasksPluginEnabled) {
+			const tasksPlugin = pluginManager?.plugins?.[tasksPluginId] as any;
+			const tasksSettings = tasksPlugin?.settings;
+
+			// Only show the note if auto-suggest is actually enabled in Tasks
+			const autoSuggestEnabled = tasksSettings?.autoSuggestTaskContent !== false;
+
+			if (autoSuggestEnabled) {
+				containerEl.createEl("h3", { text: "Compatibility" });
+
+				containerEl.createEl("p", {
+					text: "The Obsidian Tasks plugin's auto-suggest feature will block link suggestions in checklist items. To use Boost Link Suggestions in checklists, in the Tasks plugin's settings, either disable \"Auto-suggest → Auto-suggest task content,\" or set \"Auto-suggest → Minimum match length for auto-suggest\" to a number greater than 0 (e.g., 2)."
+				}).style.fontSize = "0.9em";
+			}
+		}
+
 	}
 }
